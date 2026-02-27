@@ -1,0 +1,70 @@
+Exotic Leather Identification System
+AI-Powered Texture Classification
+
+The Exotic Leather Identification System is an AI-based visual screening application that uses computer vision and machine learning techniques to identify and classify leather textures from images. The system is designed to support ethical fashion practices by helping users detect exotic leather materials that may be protected under wildlife conservation regulations such as CITES (Convention on International Trade in Endangered Species).
+
+What is This System?
+
+The Exotic Leather Identification System is a Progressive Web App (PWA) developed as part of a research project to assist shoppers, retailers, and ethical consumers in identifying the type of leather used in products. By analyzing the surface texture of uploaded images, the system applies artificial intelligence techniques to classify leather into different texture categories.
+
+The system focuses on identifying exotic-like leather textures and distinguishing them from non-exotic leather materials. This helps users make informed purchasing decisions, avoid misleading product claims, and promote ethical sourcing practices.
+
+Trained Texture Categories
+
+The current model is trained to recognize the following leather texture classes:
+
+Python-like leather
+
+Crocodile-like leather
+
+Ostrich-like leather
+
+Kangaroo-like leather
+
+Non-exotic leather
+
+If an input image does not closely match the learned texture patterns, the system may classify it as non-exotic or uncertain, and further verification may be recommended.
+
+Analysis Details
+Model Version
+
+Indicates the version of the trained classification model used during prediction. Different versions may reflect improvements in dataset size, preprocessing, or model optimization.
+
+Processing Time
+
+Represents the total time required for image preprocessing, feature extraction, and classification.
+
+Features Extracted
+
+The system uses deep feature representations extracted from images using a pre-trained EfficientNet model, which captures fine-grained texture patterns for classification.
+
+CITES Protection
+
+The Convention on International Trade in Endangered Species of Wild Fauna and Flora (CITES) is an international agreement that regulates trade in wildlife species to ensure their survival. Many exotic leather materials originate from species that require proper permits for legal trade.
+
+This system helps raise awareness by identifying textures that resemble exotic leather and encouraging ethical purchasing decisions aligned with conservation regulations.
+
+Research Background
+
+This system was developed as part of a postgraduate research project in Computer Science focusing on ethical fashion, wildlife protection, and artificial intelligence applications. The research demonstrates how computer vision and machine learning can be used to support transparency in fashion supply chains and promote responsible consumer behavior.
+
+Technical Specifications
+
+Model Architecture:
+EfficientNet-based deep feature extraction with XGBoost classification
+
+Feature Extraction:
+Deep texture features extracted from high-resolution images
+
+Classification Classes:
+Five texture categories
+
+Average Accuracy:
+Approximately 83%
+
+Deployment Platform:
+Progressive Web Application with offline capability
+
+Purpose of the System
+
+The system aims to provide a simple, accessible, and technology-driven solution for texture-based leather identification. While it does not provide biological authentication, it serves as a visual screening tool to support ethical awareness and reduce the risk of purchasing exotic wildlife-derived materials unknowingly.

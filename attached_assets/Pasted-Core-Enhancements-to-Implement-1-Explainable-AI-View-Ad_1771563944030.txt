@@ -1,0 +1,97 @@
+Core Enhancements to Implement
+1️⃣ Explainable AI View
+
+Add a toggle button “Show Model Explanation” on the result screen.
+
+When enabled, display a heatmap overlay visualization indicating regions of the image that influenced the prediction. Use a placeholder overlay if actual Grad-CAM is not implemented.
+
+2️⃣ Top-K Predictions
+
+Display the top 3 predicted classes with confidence scores.
+
+Example:
+Most likely: Python-like (0.78)
+Second: Crocodile-like (0.15)
+Third: Non-exotic (0.07)
+
+3️⃣ Risk Severity Levels
+
+Convert prediction confidence into user-friendly labels:
+
+High Exotic-Like Risk
+Medium Risk
+Low Risk
+
+Show these labels prominently with color coding.
+
+4️⃣ Prediction History
+
+Create a History page that stores scans locally using IndexedDB.
+
+Each entry should include:
+Image thumbnail
+Predicted class
+Confidence score
+Date and time
+
+5️⃣ User Feedback Feature
+
+Add a simple prompt below results:
+
+“Was this prediction helpful?”
+
+Buttons: Yes / No
+
+Store feedback locally.
+
+6️⃣ Product Category Selection
+
+Add dropdown before upload:
+
+Bag
+Wallet
+Shoes
+Belt
+Other
+
+Store selected category with prediction metadata.
+
+7️⃣ Transparency and Ethics Page
+
+Create an Info / About page explaining:
+
+The system is based on visual texture analysis only
+It is not biological authentication
+Context of CITES and ethical sourcing
+
+Link this page from the result screen.
+
+8️⃣ Confidence Threshold Handling
+
+If prediction confidence is below a defined threshold (e.g., 0.6), display:
+
+“Uncertain result — visually similar to multiple categories.”
+
+9️⃣ Multi-language Support
+
+Add language switcher with at least two languages (English + one additional language).
+
+Technical Requirements
+
+Use React with Vite
+Maintain PWA functionality
+Use local storage or IndexedDB for history
+Include modular components
+Include placeholder logic for model predictions
+Include responsive layout
+Include clean card-based UI
+
+Project Structure
+
+Update the project with additional components and pages for:
+
+Explainability view
+History
+Feedback
+About/Ethics
+Settings
