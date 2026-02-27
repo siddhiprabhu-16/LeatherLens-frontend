@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Camera, Upload, X, Loader2, Tag, ChevronDown } from "lucide-react";
+import { Camera, Upload, X, Loader2, Tag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { classifyLeather, type ClassificationResult } from "@/lib/classifier";
 import { savePrediction } from "@/lib/storage";
@@ -16,14 +16,21 @@ const CATEGORIES = ["Bag", "Wallet", "Shoes", "Belt", "Other"];
 
 export default function UploadPage() {
   const [image, setImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ClassificationResult | null>(null);
   const [category, setCategory] = useState<string>("Bag");
   const [predictionId, setPredictionId] = useState<string>("");
+
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
 
+  // Handle file selection
   const handleFile = useCallback((file: File) => {
+    if (!file.type.startsWith("image/")) return;
+
+    setSelectedFile(file); // store actual file for backend
+
     const reader = new FileReader();
     reader.onload = (e) => {
       setImage(e.target?.result as string);
@@ -32,14 +39,20 @@ export default function UploadPage() {
     reader.readAsDataURL(file);
   }, []);
 
+  // Analyze image
   const analyze = async () => {
-    if (!image) return;
+    if (!image || !selectedFile) return;
+
     setLoading(true);
+
     try {
-      const res = await classifyLeather(category);
+      const res = await classifyLeather(selectedFile);
+
       const id = crypto.randomUUID();
+
       setResult(res);
       setPredictionId(id);
+
       savePrediction({
         id,
         imageData: image,
@@ -50,6 +63,9 @@ export default function UploadPage() {
         category,
         riskLevel: res.riskLevel,
       });
+
+    } catch (error) {
+      console.error("Prediction error:", error);
     } finally {
       setLoading(false);
     }
@@ -57,8 +73,15 @@ export default function UploadPage() {
 
   const reset = () => {
     setImage(null);
+    setSelectedFile(null);
     setResult(null);
   };
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }
 
   return (
     <div className="min-h-screen pb-20 px-4 pt-8">
@@ -95,7 +118,7 @@ export default function UploadPage() {
               </Select>
             </div>
 
-            {/* Drop Zone */}
+            {/* Upload Area */}
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
@@ -125,15 +148,20 @@ export default function UploadPage() {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+              onChange={(e) =>
+                e.target.files?.[0] && handleFile(e.target.files[0])
+              }
             />
+
             <input
               ref={cameraRef}
               type="file"
               accept="image/*"
               capture="environment"
               className="hidden"
-              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+              onChange={(e) =>
+                e.target.files?.[0] && handleFile(e.target.files[0])
+              }
             />
           </motion.div>
         ) : (
@@ -144,16 +172,13 @@ export default function UploadPage() {
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
-            {/* Preview */}
+            {/* Image Preview */}
             <div className="relative">
               <img
                 src={image}
                 alt="Preview"
                 className="w-full aspect-[4/3] object-cover rounded-xl border border-border"
               />
-              <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm text-[10px] font-bold uppercase">
-                {category}
-              </div>
               {!loading && (
                 <button
                   onClick={reset}
@@ -164,12 +189,11 @@ export default function UploadPage() {
               )}
             </div>
 
-            {/* Analyze Button */}
             {!result && (
               <button
                 onClick={analyze}
                 disabled={loading}
-                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold text-base glow-amber disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold text-base disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -182,10 +206,14 @@ export default function UploadPage() {
               </button>
             )}
 
-            {/* Result */}
-            {result && <ResultCard result={result} imageData={image} predictionId={predictionId} />}
+            {result && (
+              <ResultCard
+                result={result}
+                imageData={image}
+                predictionId={predictionId}
+              />
+            )}
 
-            {/* Reset */}
             {result && (
               <button
                 onClick={reset}
@@ -199,10 +227,4 @@ export default function UploadPage() {
       </AnimatePresence>
     </div>
   );
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file?.type.startsWith("image/")) handleFile(file);
-  }
 }
