@@ -16,7 +16,7 @@ const CATEGORIES = ["Bag", "Wallet", "Shoes", "Belt", "Other"];
 
 export default function UploadPage() {
   const [image, setImage] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ClassificationResult | null>(null);
   const [category, setCategory] = useState<string>("Bag");
@@ -25,11 +25,8 @@ export default function UploadPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
 
-  // Handle file selection
   const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("image/")) return;
-
-    setSelectedFile(file); // store actual file for backend
+    setUploadedFile(file); // 🔥 store original file
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -39,14 +36,13 @@ export default function UploadPage() {
     reader.readAsDataURL(file);
   }, []);
 
-  // Analyze image
   const analyze = async () => {
-    if (!image || !selectedFile) return;
+    if (!uploadedFile) return;
 
     setLoading(true);
 
     try {
-      const res = await classifyLeather(selectedFile);
+      const res = await classifyLeather(uploadedFile);
 
       const id = crypto.randomUUID();
 
@@ -55,7 +51,7 @@ export default function UploadPage() {
 
       savePrediction({
         id,
-        imageData: image,
+        imageData: image!,
         predictedClass: res.predictedClass,
         confidence: res.confidence,
         isExotic: res.isExotic,
@@ -65,7 +61,7 @@ export default function UploadPage() {
       });
 
     } catch (error) {
-      console.error("Prediction error:", error);
+      console.error("Prediction failed:", error);
     } finally {
       setLoading(false);
     }
@@ -73,14 +69,14 @@ export default function UploadPage() {
 
   const reset = () => {
     setImage(null);
-    setSelectedFile(null);
+    setUploadedFile(null);
     setResult(null);
   };
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
+    if (file?.type.startsWith("image/")) handleFile(file);
   }
 
   return (
@@ -104,6 +100,7 @@ export default function UploadPage() {
               <label className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
                 <Tag className="w-3 h-3" /> Product Category
               </label>
+
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="w-full bg-secondary border-none rounded-xl h-12">
                   <SelectValue placeholder="Select Category" />
@@ -172,13 +169,14 @@ export default function UploadPage() {
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
-            {/* Image Preview */}
+            {/* Preview */}
             <div className="relative">
               <img
                 src={image}
                 alt="Preview"
                 className="w-full aspect-[4/3] object-cover rounded-xl border border-border"
               />
+
               {!loading && (
                 <button
                   onClick={reset}
@@ -189,6 +187,7 @@ export default function UploadPage() {
               )}
             </div>
 
+            {/* Analyze Button */}
             {!result && (
               <button
                 onClick={analyze}
@@ -206,6 +205,7 @@ export default function UploadPage() {
               </button>
             )}
 
+            {/* Result */}
             {result && (
               <ResultCard
                 result={result}
