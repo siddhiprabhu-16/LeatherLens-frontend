@@ -1,55 +1,43 @@
-export interface ClassificationResult {
-  predictedClass: string;
-  confidence: number;
-  isExotic: boolean;
-  allScores: { name: string; score: number }[];
-  riskLevel: "High" | "Medium" | "Low";
-  explanation?: string;
-}
+export async function classifyLeather(file: File): Promise<ClassificationResult> {
+  const formData = new FormData();
+  formData.append("image", file);
 
-const CLASSES = [
-  { name: "Crocodile", exotic: true },
-  { name: "Python", exotic: true },
-  { name: "Ostrich", exotic: true },
-  { name: "Kangaroo", exotic: true },
-  { name: "Non-Exotic", exotic: false },
-];
+  try {
+    const response = await fetch(
+      "https://leatherlens-backend-production.up.railway.app/api/predict",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
-export async function classifyLeather(category?: string): Promise<ClassificationResult> {
-  // Simulate processing delay
-  await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1500));
+    if (!response.ok) {
+      throw new Error("Backend failed");
+    }
 
-  // Generate random scores
-  const rawScores = CLASSES.map(() => Math.random());
-  const sum = rawScores.reduce((a, b) => a + b, 0);
-  const scores = rawScores.map((s) => s / sum);
+    const data = await response.json();
 
-  const sortedIndices = scores
-    .map((s, i) => i)
-    .sort((a, b) => scores[b] - scores[a]);
-  
-  const maxIdx = sortedIndices[0];
-  const chosen = CLASSES[maxIdx];
-  const confidence = Math.round(scores[maxIdx] * 100);
+    return {
+      predictedClass: data.prediction,
+      confidence: Math.round(data.confidence * 100),
+      isExotic: data.prediction !== "Non-Exotic",
+      allScores: [],
+      riskLevel:
+        data.confidence > 0.7 ? "High" :
+        data.confidence > 0.5 ? "Medium" : "Low",
+      explanation: "Prediction based on trained ML model."
+    };
 
-  let riskLevel: "High" | "Medium" | "Low" = "Low";
-  if (chosen.exotic) {
-    riskLevel = confidence > 70 ? "High" : "Medium";
-  } else if (confidence < 60) {
-    riskLevel = "Medium";
+  } catch (error) {
+    console.warn("Backend unavailable");
+
+    return {
+      predictedClass: "Error",
+      confidence: 0,
+      isExotic: false,
+      allScores: [],
+      riskLevel: "Low",
+      explanation: "Backend not reachable."
+    };
   }
-
-  const allScores = sortedIndices.map((i) => ({
-    name: CLASSES[i].name,
-    score: Math.round(scores[i] * 100),
-  }));
-
-  return {
-    predictedClass: chosen.name,
-    confidence,
-    isExotic: chosen.exotic,
-    allScores,
-    riskLevel,
-    explanation: `The model focused on the ${category || "texture"} patterns and scale distribution typical of ${chosen.name} leather.`,
-  };
 }
