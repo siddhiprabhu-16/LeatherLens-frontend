@@ -31,9 +31,9 @@ export default function SplashScreen() {
         className="relative"
       >
         <img 
-          src="/logo.png" 
-          alt="LeatherLens AI" 
-          className="w-48 h-48 object-contain drop-shadow-2xl"
+           src="/logo.png" 
+  alt="LeatherLens AI" 
+  className="w-48 h-48 object-cover rounded-full shadow-2xl border-4 border-primary/20"
         />
       </motion.div>
       
