@@ -20,7 +20,7 @@ export async function classifyLeather(file: File): Promise<ClassificationResult>
     return {
       predictedClass: data.prediction,
       confidence: Math.round(data.confidence * 100),
-      isExotic: data.prediction !== "Non-Exotic",
+      isExotic: data.prediction !== "Non Exotic",
       allScores: [],
       riskLevel:
         data.confidence > 0.7 ? "High" :
