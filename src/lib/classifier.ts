@@ -4,7 +4,7 @@ export async function classifyLeather(file: File): Promise<ClassificationResult>
 
   try {
     const response = await fetch(
-      "https://leatherlens-backend.onrender.com/api/predict",
+      "https://leatherlens-backend.onrender.com/predict",
       {
         method: "POST",
         body: formData,
